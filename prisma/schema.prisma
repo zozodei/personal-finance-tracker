@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String?
+  password      String
+  currency      String   @default("USD")
+  monthlyIncome Float?
+  avatarColor   String   @default("#10b981")
+  onboarded     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  transactions Transaction[]
+  goals        SavingsGoal[]
+  budgets      Budget[]
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  userId      String
+  amount      Float
+  type        String
+  category    String
+  subcategory String?
+  description String
+  date        DateTime
+  isRecurring Boolean  @default(false)
+  frequency   String?
+  isHormiga   Boolean  @default(false)
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model SavingsGoal {
+  id            String    @id @default(cuid())
+  userId        String
+  name          String
+  description   String?
+  targetAmount  Float
+  currentAmount Float     @default(0)
+  deadline      DateTime?
+  priority      String    @default("medium")
+  category      String    @default("general")
+  emoji         String    @default("🎯")
+  color         String    @default("#10b981")
+  isCompleted   Boolean   @default(false)
+  completedAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Budget {
+  id        String   @id @default(cuid())
+  userId    String
+  category  String
+  amount    Float
+  period    String   @default("monthly")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
