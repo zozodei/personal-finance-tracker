@@ -1,5 +1,5 @@
-import { neon } from "@neondatabase/serverless";
-import { PrismaNeon } from "@prisma/adapter-neon";
+import path from "path";
+import { PrismaLibSql } from "@prisma/adapter-libsql";
 import { PrismaClient } from "@/generated/prisma/client";
 
 const globalForPrisma = globalThis as unknown as {
@@ -7,9 +7,8 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 function createPrismaClient() {
-  const connectionString = process.env.DATABASE_URL!;
-  const sql = neon(connectionString);
-  const adapter = new PrismaNeon(sql);
+  const url = process.env.DATABASE_URL ?? `file:${path.join(process.cwd(), "prisma", "finzen.db")}`;
+  const adapter = new PrismaLibSql({ url });
   return new PrismaClient({ adapter } as any);
 }
 
